@@ -21,6 +21,7 @@ args["date"] ? (logDate = args["date"].replace(/-/g, "_")) : (logDate = yesterda
 
 let proofs = 0,
     blocks = 0,
+    rewards = 0,
     dummyBlocks = 0,
     blockHeights = "",
     eligiblePlotsTotal = 0,
@@ -57,6 +58,7 @@ function createMessage() {
     message = "🚜 MMX Node Health Report - " + logDate.replace(/_/g, "-") + "\n";
 
     message += "\n";
+    message += "MMX earned 💰: " + Math.round(rewards * 100) / 100 + " MMX\n";
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocks + " Created blocks 🍀\n";
     if (blocks > 0) {
@@ -125,6 +127,7 @@ function dealWithBlock(lp) {
             blockHeights += ", ";
         }
         blockHeights += lp[9];
+        rewards = rewards + lp[19] * 1;
     } else if (lp[13] == "dummy,") {
         dummyBlocks++;
     }
@@ -162,3 +165,5 @@ function dealWithEligible(lp) {
     }
     eligiblePlotsCount++;
 }
+
+// 2024-08-22 06:28:03 [Node] INFO: 🤑 Created block at height 595448 with: ntx = 0, score = 377, reward = 0.5 MMX, fees = 0 MMX, took 0.035 sec
