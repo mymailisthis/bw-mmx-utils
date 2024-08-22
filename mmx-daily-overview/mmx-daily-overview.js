@@ -52,14 +52,16 @@ function createMessage() {
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocks + " Created blocks 🍀\n";
     if (blocks > 0) {
-        message += "   (heights: " + blockHeights + ")\n";
+        message += "   (" + blockHeights + ")\n";
     }
     message += " - " + dummyBlocks + " Dummy blocks 💩\n";
+    message += "\n";
     message += "Search 🔎: \n";
     message += " - average: " + Math.round(eligiblePlotsTotalTime / eligiblePlotsCount * 1000) / 1000 + "s over " + eligiblePlotsCount + " searches\n";
     message += " - over 1s: " + eligibleOver1s + " occasions (" + Math.round(eligibleOver1s / eligiblePlotsCount * 1000) / 10 + "%)\n";
     message += " - over 5s: " + eligibleOver5s + " occasions (" + Math.round(eligibleOver5s / eligiblePlotsCount * 1000) / 10 + "%)\n";
     message += " - over 15s: " + eligibleOver15s + " occasions (" + Math.round(eligibleOver15s / eligiblePlotsCount * 1000) / 10 + "%)\n";
+    message += "\n";
     message += "Plots 🌱: " + plotsFinal;
     if (plotsFinal !== plotsInitial) {
         const diff = plotsFinal - plotsInitial;
@@ -71,9 +73,9 @@ function createMessage() {
     } else {
         message += "\n";
     }
-    message += "Eligible plots 🏆: " + Math.round(eligiblePlotsTotal / eligiblePlotsCount * 1000) / 1000 + " average (Min: " + eligiblePlotsMin + " / Max: " + eligiblePlotsMax + ")\n";
+    message += "Eligible plots 🏆: " + Math.round(eligiblePlotsTotal / eligiblePlotsCount * 100) / 100 + " average (Min: " + eligiblePlotsMin + " / Max: " + eligiblePlotsMax + ")\n";
     message += "\n";
-    message += "This script used approximately " + Math.round(used * 100) / 100 + "MB";
+    // message += "This script used approximately " + Math.round(used * 100) / 100 + "MB";
 }
 
 function sendMessage() {
