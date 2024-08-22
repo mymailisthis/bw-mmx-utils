@@ -1,10 +1,11 @@
 #! /usr/bin/env node
+
+const args = require("minimist")(process.argv.slice(2));
 const dotenv = require("dotenv");
 dotenv.config();
 
 const fs = require('fs');
 const logFolder = process.env.LOG_FOLDER;
-const args = require("minimist")(process.argv.slice(2));
 
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -15,7 +16,7 @@ let yesterday = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
 let logDate = "";
 
-args["date"] ? (logDate = args["date"].replaceAll("-", "_")) : (logDate = yesterday.toISOString().split('T')[0].replaceAll("-", "_"));
+args["date"] ? (logDate = args["date"].replace(/-/g, "_")) : (logDate = yesterday.toISOString().split('T')[0].replace(/-/g, "_"));
 
 let proofs = 0,
     blocks = 0,
@@ -45,7 +46,7 @@ function createMessage() {
     const used = process.memoryUsage().heapUsed / 1024 / 1024;
     // console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 
-    message = "🚜 MMX Node Health Report - " + logDate.replaceAll("_", "-") + "\n";
+    message = "🚜 MMX Node Health Report - " + logDate.replace(/_/g, "-") + "\n";
     // message += "From height " + heightMin + " to " + heightMax + "\n";
     message += "\n";
     message += "Proofs 🧾: " + proofs + "\n";
