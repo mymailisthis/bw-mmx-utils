@@ -16,6 +16,7 @@ let yesterday = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
 let logDate = "";
 
+// if a date is given we use it, if not, yesterday log is used
 args["date"] ? (logDate = args["date"].replace(/-/g, "_")) : (logDate = yesterday.toISOString().split('T')[0].replace(/-/g, "_"));
 
 let proofs = 0,
@@ -34,20 +35,27 @@ let proofs = 0,
     plotsFinal = 0,
     message;
 
-const allFileContents = fs.readFileSync(logFolder + '/mmx_node_' + logDate + '.txt', 'utf-8');
-allFileContents.split(/\r?\n/).forEach(line => {
-    processLine(line);
-});
 
-createMessage();
-sendMessage();
+let fileExists = fs.existsSync(logFolder + '/mmx_node_' + logDate + '.txt');
+
+if (fileExists) {
+    const allFileContents = fs.readFileSync(logFolder + '/mmx_node_' + logDate + '.txt', 'utf-8');
+
+    allFileContents.split(/\r?\n/).forEach(line => {
+        processLine(line);
+    });
+
+    createMessage();
+    sendMessage();
+} else {
+    console.log("No log file to the specified date.");
+    process.exit();
+}
 
 function createMessage() {
-    const used = process.memoryUsage().heapUsed / 1024 / 1024;
-    // console.log(`The script uses approximately ${Math.round(used * 100) / 100} MB`);
 
     message = "🚜 MMX Node Health Report - " + logDate.replace(/_/g, "-") + "\n";
-    // message += "From height " + heightMin + " to " + heightMax + "\n";
+
     message += "\n";
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocks + " Created blocks 🍀\n";
@@ -75,7 +83,6 @@ function createMessage() {
     }
     message += "Eligible plots 🏆: " + Math.round(eligiblePlotsTotal / eligiblePlotsCount * 100) / 100 + " average (Min: " + eligiblePlotsMin + " / Max: " + eligiblePlotsMax + ")\n";
     message += "\n";
-    // message += "This script used approximately " + Math.round(used * 100) / 100 + "MB";
 }
 
 function sendMessage() {
@@ -112,8 +119,6 @@ function dealWithProof(lp) {
 }
 
 function dealWithBlock(lp) {
-    // console.log(lp);
-    // return;
     if (lp[13] == "0,") {
         blocks++;
         if (blockHeights !== "") {
@@ -157,7 +162,3 @@ function dealWithEligible(lp) {
     }
     eligiblePlotsCount++;
 }
-
-// 2024-08-21 23:18:00 [Harvester] INFO: [warhol] 54 / 745 plots were eligible for height 592876, max lookup 0.161 sec, delay 0.465 sec
-// 2024-08-21 22:51:12 [Node] INFO: 🤑 Created block at height 592710 with: ntx = dummy, score = 3650, reward = 0.5 MMX, fees = 0 MMX, took 0.022 sec
-// 2024-08-21 22:50:13 [Harvester] INFO: [warhol] Found proof with score 3650 for height 592710, delay 1.81 sec
