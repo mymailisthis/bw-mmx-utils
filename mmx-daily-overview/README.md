@@ -1,4 +1,4 @@
-## Register New Chia Plots
+## MMX Daily Report
 
 This is a nodejs script based on *chiadog* that outputs a daily overview to a *telegram* bot.
 
@@ -16,7 +16,7 @@ NOTES:
 3. Create and fill your `.env` file based on `.env-sample`
 
 
-## Sending yesterday's report
+### Sending yesterday's report
 
 ```
 cd bw-mmx-utils/mmx-daily-overview
@@ -24,7 +24,7 @@ cd bw-mmx-utils/mmx-daily-overview
 ```
 
 
-## Sending report for specific date
+### Sending report for specific date
 
 ```
 cd bw-mmx-utils/mmx-daily-overview
