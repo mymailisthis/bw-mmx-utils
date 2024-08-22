@@ -77,7 +77,12 @@ function createMessage() {
 }
 
 function sendMessage() {
-    bot.sendMessage(chatID, message);
+    bot.sendMessage(chatID, message).then(r => {
+        // console.log(r);
+        console.log("sent!");
+
+        process.exit();
+    });
     // console.log(message);
 }
 
