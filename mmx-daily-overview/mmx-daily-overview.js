@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -75,8 +76,8 @@ function createMessage() {
 }
 
 function sendMessage() {
-    // bot.sendMessage(chatID, message);
-    console.log(message);
+    bot.sendMessage(chatID, message);
+    // console.log(message);
 }
 
 function processLine(l) {
