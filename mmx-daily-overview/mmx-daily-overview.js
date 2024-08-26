@@ -219,6 +219,8 @@ function sendMessage() {
 
     if (output == "console") {
         console.log(message);
+
+        process.exit();
     }
 }
 
