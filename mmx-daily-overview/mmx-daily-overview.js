@@ -47,6 +47,8 @@ let dayBeforeLastBlock = {},
     dummyBlocks = 0,
     blockHeights = "",
     heightsCount = 0,
+    lastHeight = 0,
+    skippedHeights = 0,
     blocks = [],
     etw_h = 0,
     eligiblePlotsTotal = 0,
@@ -75,10 +77,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        farmData["netspace"] = await getNetSpace();
-        farmData["farmspace"] = await getFarmSpace();
-        // farmData["netspace"] = 113324309360000000;
-        // farmData["farmspace"] = 200942856626176;
+        // farmData["netspace"] = await getNetSpace();
+        // farmData["farmspace"] = await getFarmSpace();
+        farmData["netspace"] = 113324309360000000;
+        farmData["farmspace"] = 200942856626176;
 
         parseLog(logDate);
 
@@ -175,6 +177,13 @@ function createMessage() {
         message += "\n";
     }
     message += "Eligible plots 🏆: " + Math.round(eligiblePlotsTotal / eligiblePlotsCount * 100) / 100 + " average (Min: " + eligiblePlotsMin + " / Max: " + eligiblePlotsMax + ")\n";
+    let iconSH;
+    if (skippedHeights > 0) {
+        iconSH = "🙈";
+    } else {
+        iconSH = "👏";
+    }
+    message += "Skipped heights " + iconSH + ": " + skippedHeights + " (approx " + millisecondsToStr(skippedHeights * 10 * 1000) + ")\n";
     message += "\n";
 }
 
@@ -262,10 +271,21 @@ function processLines(l) {
         dealWithEligible(lineparts);
     }
 
-    // Created block
+    // Committed height
     if (lineparts[4] == "Committed" && lineparts[5] == "height") {
+        checkSkippedHeights(lineparts[6] * 1);
         heightsCount++;
     }
+}
+
+function checkSkippedHeights(h) {
+    if (lastHeight != 0) {
+        if (lastHeight + 1 !== h) {
+            skippedHeights = skippedHeights + (h - lastHeight);
+        }
+    }
+
+    lastHeight = h;
 }
 
 function dealWithProof(lp) {
@@ -320,4 +340,35 @@ function dealWithEligible(lp) {
     eligiblePlotsCount++;
 }
 
-// 2024-08-22 06:28:03 [Node] INFO: 🤑 Created block at height 595448 with: ntx = 0, score = 377, reward = 0.5 MMX, fees = 0 MMX, took 0.035 sec
+function millisecondsToStr(milliseconds) {
+    // TIP: to find current time in milliseconds, use:
+    // var  current_time_milliseconds = new Date().getTime();
+
+    function numberEnding(number) {
+        return (number > 1) ? 's' : '';
+    }
+
+    var temp = Math.floor(milliseconds / 1000);
+    var years = Math.floor(temp / 31536000);
+    if (years) {
+        return years + ' year' + numberEnding(years);
+    }
+    //TODO: Months! Maybe weeks? 
+    var days = Math.floor((temp %= 31536000) / 86400);
+    if (days) {
+        return days + ' day' + numberEnding(days);
+    }
+    var hours = Math.floor((temp %= 86400) / 3600);
+    if (hours) {
+        return hours + ' hour' + numberEnding(hours);
+    }
+    var minutes = Math.floor((temp %= 3600) / 60);
+    if (minutes) {
+        return minutes + ' minute' + numberEnding(minutes);
+    }
+    var seconds = temp % 60;
+    if (seconds) {
+        return seconds + ' second' + numberEnding(seconds);
+    }
+    return 'less than a second'; //'just now' //or other string you like;
+}
