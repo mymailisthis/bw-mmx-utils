@@ -5,25 +5,44 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const fs = require('fs');
+const exec = require('child_process').exec;
 const logFolder = process.env.LOG_FOLDER;
+const mmxFolder = process.envF;
 
 const TelegramBot = require('node-telegram-bot-api');
+const { parse } = require("path");
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const chatID = process.env.TELEGRAM_CHAT_ID;
 const bot = new TelegramBot(token, { polling: true });
 
 let yesterday = new Date();
+let dayBefore = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
+dayBefore.setDate(dayBefore.getDate() - 2);
 let logDate = "";
 
 // if a date is given we use it, if not, yesterday log is used
-args["date"] ? (logDate = args["date"].replace(/-/g, "_")) : (logDate = yesterday.toISOString().split('T')[0].replace(/-/g, "_"));
+if (args["date"]) {
+    let tmpDate = new Date(args["date"]);
+    tmpDate.setDate(tmpDate.getDate() - 1);
 
-let proofs = 0,
-    blocks = 0,
+    logDate = args["date"].replace(/-/g, "_");
+    logDateBefore = tmpDate.toISOString().split('T')[0].replace(/-/g, "_");
+} else {
+    logDate = yesterday.toISOString().split('T')[0].replace(/-/g, "_");
+    logDateBefore = dayBefore.toISOString().split('T')[0].replace(/-/g, "_");
+}
+
+let dayBeforeLastBlock = {},
+    farmData = {},
+    proofs = 0,
+    blocksCount = 0,
     rewards = 0,
     dummyBlocks = 0,
     blockHeights = "",
+    heightsCount = 0,
+    blocks = [],
+    etw_h = 0,
     eligiblePlotsTotal = 0,
     eligiblePlotsTotalTime = 0,
     eligiblePlotsCount = 0,
@@ -37,32 +56,98 @@ let proofs = 0,
     message;
 
 
-let fileExists = fs.existsSync(logFolder + '/mmx_node_' + logDate + '.txt');
 
-if (fileExists) {
-    const allFileContents = fs.readFileSync(logFolder + '/mmx_node_' + logDate + '.txt', 'utf-8');
+let fileExists = fs.existsSync(logFolder + '/mmx_node_' + logDate + '.txt');
+let fileBeforeExists = fs.existsSync(logFolder + '/mmx_node_' + logDateBefore + '.txt');
+
+initialize();
+
+async function initialize() {
+
+    if (fileExists) {
+        if (fileBeforeExists) {
+            const dayBeforeData = await getDayBeforeData();
+        }
+
+        farmData["netspace"] = await getNetSpace();
+        farmData["farmspace"] = await getFarmSpace();
+        // farmData["netspace"] = 113324309360000000;
+        // farmData["farmspace"] = 200942856626176;
+
+        parseLog(logDate);
+
+        createMessage();
+        sendMessage();
+    } else {
+        console.log("No log file to the specified date.");
+        process.exit();
+    }
+}
+
+async function computeRelatedFarmData() {
+    etw_h = 24 / (farmData.farmspace / farmData.netspace * heightsCount);
+}
+
+async function getDayBeforeData() {
+    return parseLog(logDateBefore, true);
+}
+
+function parseLog(lf, before = false) {
+
+    const allFileContents = fs.readFileSync(logFolder + '/mmx_node_' + lf + '.txt', 'utf-8');
 
     allFileContents.split(/\r?\n/).forEach(line => {
-        processLine(line);
+        if (before) {
+            processLinesDayBefore(line);
+        } else {
+            processLines(line);
+        }
     });
+}
 
-    createMessage();
-    sendMessage();
-} else {
-    console.log("No log file to the specified date.");
-    process.exit();
+async function getNetSpace() {
+
+    return new Promise(function (resolve, reject) {
+        exec("cd " +
+            mmxFolder + "; source ./activate.sh; mmx node get netspace", function (err, stdout, stderr) {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    const result = stdout.split("\n");
+                    resolve(result[0]);
+                }
+            });
+    });
+}
+
+async function getFarmSpace() {
+
+    return new Promise(function (resolve, reject) {
+        exec('mmx farm get space', function (err, stdout, stderr) {
+            if (err) {
+                console.error(err);
+                reject(err);
+            } else {
+                const result = stdout.split("\n");
+                resolve(result[0]);
+            }
+        });
+    });
 }
 
 function createMessage() {
+    computeRelatedFarmData();
 
     message = "🚜 MMX Node Health Report - " + logDate.replace(/_/g, "-") + "\n";
 
     message += "\n";
     message += "MMX earned 💰: " + Math.round(rewards * 100) / 100 + " MMX\n";
     message += "Proofs 🧾: " + proofs + "\n";
-    message += " - " + blocks + " Created blocks 🍀\n";
-    if (blocks > 0) {
-        message += "   (" + blockHeights + ")\n";
+    message += " - " + blocksCount + " Created blocks 🍀\n";
+    if (blocks.length > 0) {
+        message += "   - Blocks details:\n"
+        message += "     " + generateBlocksDetails() + "\n";
     }
     message += " - " + dummyBlocks + " Dummy blocks 💩\n";
     message += "\n";
@@ -87,6 +172,35 @@ function createMessage() {
     message += "\n";
 }
 
+function generateBlocksDetails() {
+    if (blocks.length > 0) {
+        let str = "";
+        let lastTime = 0;
+        let allEfforts = [];
+
+        blocks.forEach(b => {
+            (lastTime == 0) && (lastTime = new Date(dayBeforeLastBlock.dateTime).getTime());
+            let currentBlockTime = new Date(b.dateTime).getTime();
+            let diff = Math.abs(currentBlockTime - lastTime) / 36e5;
+            let effort = Math.round(diff / etw_h * 100);
+            allEfforts.push(effort);
+            lastTime = currentBlockTime;
+
+            if (str !== "") {
+                str += ", ";
+            } else {
+                str += "(";
+            }
+            str += b.height + " / " + effort + "%";
+        });
+
+        str += ")\n";
+        str += "   - Average effort: " + Math.round(allEfforts.reduce((partialSum, a) => partialSum + a, 0) / allEfforts.length) + "%";
+
+        return str;
+    }
+}
+
 function sendMessage() {
     bot.sendMessage(chatID, message).then(r => {
         // console.log(r);
@@ -97,7 +211,27 @@ function sendMessage() {
     // console.log(message);
 }
 
-function processLine(l) {
+function processLinesDayBefore(l) {
+    const lp = l.split(" ");
+
+    // Created block
+    if (lp[5] == "Created" && lp[6] == "block") {
+        if (lp[13] == "0,") {
+            dayBeforeLastBlock = createBlock(lp);
+        }
+    }
+}
+
+function createBlock(lp) {
+    return {
+        height: lp[9],
+        rewards: lp[19] * 1,
+        dateTime: lp[0] + " " + lp[1],
+        fees: lp[23] * 1,
+    }
+}
+
+function processLines(l) {
     const lineparts = l.split(" ");
 
     // Found proof
@@ -114,6 +248,11 @@ function processLine(l) {
     if (lineparts[8] == "plots" && lineparts[9] == "were" && lineparts[10] == "eligible") {
         dealWithEligible(lineparts);
     }
+
+    // Created block
+    if (lineparts[4] == "Committed" && lineparts[5] == "height") {
+        heightsCount++;
+    }
 }
 
 function dealWithProof(lp) {
@@ -122,7 +261,9 @@ function dealWithProof(lp) {
 
 function dealWithBlock(lp) {
     if (lp[13] == "0,") {
-        blocks++;
+        const bl = createBlock(lp);
+        blocks.push(bl);
+        blocksCount++;
         if (blockHeights !== "") {
             blockHeights += ", ";
         }
