@@ -15,6 +15,8 @@ const token = process.env.TELEGRAM_BOT_TOKEN;
 const chatID = process.env.TELEGRAM_CHAT_ID;
 const bot = new TelegramBot(token, { polling: true });
 
+let output = "telegram";
+
 let yesterday = new Date();
 let dayBefore = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
@@ -31,6 +33,10 @@ if (args["date"]) {
 } else {
     logDate = yesterday.toISOString().split('T')[0].replace(/-/g, "_");
     logDateBefore = dayBefore.toISOString().split('T')[0].replace(/-/g, "_");
+}
+
+if (args["output"] && args["output"] == "console") {
+    output = "console";
 }
 
 let dayBeforeLastBlock = {},
@@ -202,13 +208,18 @@ function generateBlocksDetails() {
 }
 
 function sendMessage() {
-    bot.sendMessage(chatID, message).then(r => {
-        // console.log(r);
-        console.log("sent!");
+    if (output == "telegram") {
+        bot.sendMessage(chatID, message).then(r => {
+            // console.log(r);
+            console.log("sent!");
 
-        process.exit();
-    });
-    // console.log(message);
+            process.exit();
+        });
+    }
+
+    if (output == "console") {
+        console.log(message);
+    }
 }
 
 function processLinesDayBefore(l) {
