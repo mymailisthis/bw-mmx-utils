@@ -93,7 +93,7 @@ async function initialize() {
 }
 
 async function computeRelatedFarmData() {
-    etw_h = 24 / (farmData.farmspace / farmData.netspace * heightsCount);
+    etw_h = 24 / (farmData.farmspace / farmData.netspace * 8640);
 }
 
 async function getDayBeforeData() {
