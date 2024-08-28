@@ -48,7 +48,8 @@ let dayBeforeLastBlock = {},
     blockHeights = "",
     heightsCount = 0,
     lastHeight = 0,
-    skippedHeights = 0,
+    skippedHeightsCount = 0,
+    skippedHeightsStr = "",
     blocks = [],
     etw_h = 0,
     eligiblePlotsTotal = 0,
@@ -77,10 +78,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        // farmData["netspace"] = await getNetSpace();
-        // farmData["farmspace"] = await getFarmSpace();
-        farmData["netspace"] = 113324309360000000;
-        farmData["farmspace"] = 200942856626176;
+        farmData["netspace"] = await getNetSpace();
+        farmData["farmspace"] = await getFarmSpace();
+        // farmData["netspace"] = 113324309360000000;
+        // farmData["farmspace"] = 200942856626176;
 
         parseLog(logDate);
 
@@ -178,12 +179,12 @@ function createMessage() {
     }
     message += "Eligible plots 🏆: " + Math.round(eligiblePlotsTotal / eligiblePlotsCount * 100) / 100 + " average (Min: " + eligiblePlotsMin + " / Max: " + eligiblePlotsMax + ")\n";
     let iconSH;
-    if (skippedHeights > 0) {
+    if (skippedHeightsCount > 0) {
         iconSH = "🙈";
     } else {
         iconSH = "👏";
     }
-    message += "Skipped heights " + iconSH + ": " + skippedHeights + " (approx " + millisecondsToStr(skippedHeights * 10 * 1000) + ")\n";
+    message += "Skipped heights " + iconSH + ": " + skippedHeightsCount + " (approx " + millisecondsToStr(skippedHeightsCount * 10 * 1000) + ") " + skippedHeightsStr + "\n";
     message += "\n";
 }
 
@@ -281,7 +282,11 @@ function processLines(l) {
 function checkSkippedHeights(h) {
     if (lastHeight != 0) {
         if (lastHeight + 1 !== h) {
-            skippedHeights = skippedHeights + (h - lastHeight);
+            skippedHeightsCount = skippedHeightsCount + (h - lastHeight);
+            if (skippedHeightsStr !== "") {
+                skippedHeightsStr += ", ";
+            }
+            skippedHeightsStr += "[" + lastHeight + "..." + h + "]";
         }
     }
 
