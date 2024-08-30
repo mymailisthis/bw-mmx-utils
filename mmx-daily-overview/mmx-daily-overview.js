@@ -185,6 +185,11 @@ function createMessage() {
     }
     message += "Skipped heights " + iconSH + ": " + skippedHeightsCount + " (approx " + millisecondsToStr(skippedHeightsCount * 10 * 1000) + ") " + skippedHeightsStr + "\n";
     message += "\n";
+
+    message += "By daily gains your farm data are: \n";
+    message += " - ETW: " + millisecondsToStr(getEstimatedETW() * 3600 * 1000) + "\n";
+    message += " - Farm size: " + Math.round(getEstimatedFarmSize() / 1000000000000 * 100) / 100 + " TB\n";
+    message += " - Performance: " + Math.round(getEstimatedFarmSize() / farmData.farmspace * 1000) / 10 + "%";
 }
 
 function generateBlocksDetails() {
@@ -342,6 +347,15 @@ function dealWithEligible(lp) {
         eligibleOver15s++;
     }
     eligiblePlotsCount++;
+}
+
+function getEstimatedETW() {
+    return 24 / blocksCount;
+}
+
+function getEstimatedFarmSize() {
+    // 24 / (fs / netspace * 8640) = etw
+    return 24 / getEstimatedETW() / 8640 * farmData.netspace;
 }
 
 function millisecondsToStr(milliseconds) {
