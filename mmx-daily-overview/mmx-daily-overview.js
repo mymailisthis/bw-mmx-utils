@@ -7,7 +7,7 @@ dotenv.config();
 const fs = require('fs');
 const exec = require('child_process').exec;
 const logFolder = process.env.LOG_FOLDER;
-const mmxFolder = process.envF;
+const mmxFolder = process.env.MMX_FOLDER;
 
 const TelegramBot = require('node-telegram-bot-api');
 const { parse } = require("path");
@@ -81,7 +81,7 @@ async function initialize() {
         farmData["netspace"] = await getNetSpace();
         farmData["farmspace"] = await getFarmSpace();
         // farmData["netspace"] = 113324309360000000;
-        // farmData["farmspace"] = 200942856626176;
+        // farmData["farmspace"] = 240942856626176;
 
         parseLog(logDate);
 
