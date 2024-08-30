@@ -187,7 +187,7 @@ function createMessage() {
     message += "\n";
 
     message += "By daily gains your farm data are: \n";
-    message += " - ETW: " + millisecondsToStr(getEstimatedETW() * 3600 * 1000) + "\n";
+    message += " - ETW: " + convertHoursDecimal(getEstimatedETW()) + "\n";
     message += " - Farm size: " + Math.round(getEstimatedFarmSize() / 1000000000000 * 100) / 100 + " TB\n";
     message += " - Performance: " + Math.round(getEstimatedFarmSize() / farmData.farmspace * 1000) / 10 + "%";
 }
@@ -389,4 +389,16 @@ function millisecondsToStr(milliseconds) {
         return seconds + ' second' + numberEnding(seconds);
     }
     return 'less than a second'; //'just now' //or other string you like;
+}
+
+function convertHoursDecimal(h) {
+    let decimalTime = parseFloat(h);
+    decimalTime = decimalTime * 60 * 60;
+    let hours = Math.floor((decimalTime / (60 * 60)));
+    decimalTime = decimalTime - (hours * 60 * 60);
+    let minutes = Math.floor((decimalTime / 60));
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    return hours + "h" + minutes;
 }
