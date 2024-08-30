@@ -117,23 +117,22 @@ function parseLog(lf, before = false) {
 async function getNetSpace() {
 
     return new Promise(function (resolve, reject) {
-        exec("cd " +
-            mmxFolder + "; source ./activate.sh; mmx node get netspace", function (err, stdout, stderr) {
-                if (err) {
-                    console.error(err);
-                    reject(err);
-                } else {
-                    const result = stdout.split("\n");
-                    resolve(result[0]);
-                }
-            });
+        exec(mmxFolder + "/build/mmx node get netspace", function (err, stdout, stderr) {
+            if (err) {
+                console.error(err);
+                reject(err);
+            } else {
+                const result = stdout.split("\n");
+                resolve(result[0]);
+            }
+        });
     });
 }
 
 async function getFarmSpace() {
 
     return new Promise(function (resolve, reject) {
-        exec('mmx farm get space', function (err, stdout, stderr) {
+        exec(mmxFolder + "/build/mmx farm get space", function (err, stdout, stderr) {
             if (err) {
                 console.error(err);
                 reject(err);
