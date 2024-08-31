@@ -147,12 +147,12 @@ async function getFarmSpace() {
 function createMessage() {
     computeRelatedFarmData();
 
-    message = "🚜 MMX Node Health Report - " + logDate.replace(/_/g, "-") + "\n";
+    message = "🚜 *MMX Node Health Report* - " + logDate.replace(/_/g, "-") + "\n";
 
     message += "\n";
-    message += "MMX earned 💰: " + Math.round(rewards * 100) / 100 + " MMX\n";
+    message += "*MMX earned* 💰: " + Math.round(rewards * 100) / 100 + " MMX\n";
     message += "Proofs 🧾: " + proofs + "\n";
-    message += " - " + blocksCount + " Created blocks 🍀\n";
+    message += " - " + blocksCount + " *Created blocks* 🍀\n";
     if (blocks.length > 0) {
         message += "   - Blocks details:\n"
         message += "     " + generateBlocksDetails() + "\n";
@@ -186,10 +186,16 @@ function createMessage() {
     message += "Skipped heights " + iconSH + ": " + skippedHeightsCount + " (approx " + millisecondsToStr(skippedHeightsCount * 10 * 1000) + ") " + skippedHeightsStr + "\n";
     message += "\n";
 
-    message += "By daily gains your farm data are: \n";
+    message += "Based on daily gains your estimated farm data is: \n";
     message += " - ETW: " + convertHoursDecimal(getEstimatedETW()) + "\n";
     message += " - Farm size: " + Math.round(getEstimatedFarmSize() / 1000000000000 * 100) / 100 + " TB\n";
-    message += " - Performance: " + Math.round(getEstimatedFarmSize() / farmData.farmspace * 1000) / 10 + "%";
+    let iconPerf;
+    if (getEstimatedFarmSize() / farmData.farmspace >= 1) {
+        iconPerf = "👍";
+    } else {
+        iconPerf = "👎";
+    }
+    message += " - Performance: " + Math.round(getEstimatedFarmSize() / farmData.farmspace * 1000) / 10 + "% " + iconPerf;
 }
 
 function generateBlocksDetails() {
@@ -223,7 +229,7 @@ function generateBlocksDetails() {
 
 function sendMessage() {
     if (output == "telegram") {
-        bot.sendMessage(chatID, message).then(r => {
+        bot.sendMessage(chatID, message, { parse_mode: 'Markdown' }).then(r => {
             // console.log(r);
             console.log("sent!");
 
