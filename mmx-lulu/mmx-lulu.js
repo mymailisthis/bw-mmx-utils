@@ -88,7 +88,7 @@ async function parseData(d) {
             const tmpBl = createBlock(d);
             blocks.push(tmpBl);
             log(l_parts[0] + " " + l_parts[1] + " Farmdata: " + JSON.stringify(farmData));
-            sendTelegramMessage("🍀 *New block* <small>| height: " + l_parts[9] + " | score: " + l_parts[16].replace(",", "") + effort + " | reward: " + l_parts[19] + " " + l_parts[20] + " | fees: " + l_parts[23] + " " + l_parts[24] + "</small>");
+            sendTelegramMessage("🍀 *New block* | height: " + l_parts[9] + " | score: " + l_parts[16].replace(",", "") + effort + " | reward: " + l_parts[19] + " " + l_parts[20] + " | fees: " + l_parts[23] + " " + l_parts[24]);
         }
     }
 
