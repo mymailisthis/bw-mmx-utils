@@ -94,7 +94,7 @@ async function parseData(d) {
 
     // Found proof
     if (l_parts[5] == "Found" && l_parts[6] == "proof") {
-        log(l_parts[0] + " " + l_parts[1] + " Found proof | height: " + l_parts[12].replace(",", "") + " | score: " + l_parts[9]);
+        log(d);
     }
 }
 
