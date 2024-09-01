@@ -1,0 +1,11 @@
+{
+    "name": "mmx-lulu",
+    "version": "1.0.0",
+    "description": "script to tail MMX log and send notifications via telegram",
+    "dependencies": {
+        "dotenv": "^15.0.0",
+        "minimist": "^1.2.8",
+        "node-telegram-bot-api": "^0.66.0",
+        "tail": "^2.2.4"
+    }
+}
