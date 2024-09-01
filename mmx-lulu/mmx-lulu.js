@@ -85,8 +85,7 @@ async function parseData(d) {
             let effort = "";
             (eff != "N/A") && (effort = ", effort = " + eff + "%");
             log(d + effort);
-            const tmpBl = createBlock(d);
-            blocks.push(tmpBl);
+            blocks.push(createBlock(d));
             log(l_parts[0] + " " + l_parts[1] + " Farmdata: " + JSON.stringify(farmData));
             sendTelegramMessage("🍀 *New block* | height: " + l_parts[9] + " | score: " + l_parts[16].replace(",", "") + effort + " | reward: " + l_parts[19] + " " + l_parts[20].replace(",", "") + " | fees: " + l_parts[23] + " " + l_parts[24].replace(",", ""));
         }
@@ -153,6 +152,9 @@ async function getFarmSpace() {
 }
 
 async function computeEffort(l) {
+    farmData["netspace"] = await getNetSpace();
+    farmData["farmspace"] = await getFarmSpace();
+
     const lp = l.split(" ");
 
     if (blocks.length == 0) {
