@@ -132,13 +132,14 @@ async function getNetSpace() {
 async function getFarmSpace() {
 
     return new Promise(function (resolve, reject) {
-        exec(mmxFolder + "/build/mmx farm get space", function (err, stdout, stderr) {
+        exec(mmxFolder + "/build/mmx farm info", function (err, stdout, stderr) {
             if (err) {
                 console.error(err);
                 reject(err);
             } else {
                 const result = stdout.split("\n");
-                resolve(result[0]);
+                let total = result[3].split(" ");
+                resolve(total[6] * 1000000000000);
             }
         });
     });
