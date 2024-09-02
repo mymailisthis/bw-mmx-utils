@@ -16,6 +16,7 @@ const chatID = process.env.TELEGRAM_CHAT_ID;
 const bot = new TelegramBot(token, { polling: true });
 
 let output = "telegram";
+let showBlocksInfo = false;
 
 let yesterday = new Date();
 let dayBefore = new Date();
@@ -37,6 +38,10 @@ if (args["date"]) {
 
 if (args["output"] && args["output"] == "console") {
     output = "console";
+}
+
+if (args["blocks"] && args["blocks"] == "1") {
+    showBlocksInfo = true;
 }
 
 let dayBeforeLastBlock = {},
@@ -154,7 +159,7 @@ function createMessage() {
     message += "*MMX earned* 💰: " + Math.round(rewards * 100) / 100 + " MMX\n";
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocksCount + " *Created blocks* 🍀\n";
-    if (blocks.length > 0) {
+    if (blocks.length > 0 && showBlocksInfo) {
         message += "   - Blocks details:\n"
         message += "     " + generateBlocksDetails() + "\n";
     }
