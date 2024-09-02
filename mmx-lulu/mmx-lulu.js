@@ -14,7 +14,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const { parse } = require("path");
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const chatID = process.env.TELEGRAM_CHAT_ID;
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: false });
 
 let logToday = "",
     logYesterday = "";
