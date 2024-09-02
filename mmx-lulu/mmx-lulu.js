@@ -55,6 +55,10 @@ async function initialize() {
         "/mmx_node_" + logToday + ".txt"
     );
 
+    while (!fs.existsSync(mmx_log_folder + "/mmx_node_" + logToday + ".txt")) {
+        sleep(500);
+    }
+
     tail = new Tail(mmx_log_folder + "/mmx_node_" + logToday + ".txt");
 
     tail.on("line", function (data) {
@@ -195,4 +199,8 @@ function processLines(l) {
             blocks.push(createBlock(l));
         }
     }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
