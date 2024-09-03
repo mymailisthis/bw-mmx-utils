@@ -109,8 +109,14 @@ async function parseData(d) {
 }
 
 function createBlock(l) {
-    dailyBlockCount++;
     const lp = l.split(" ");
+
+    const now = new Date();
+    const l_date = new Date(lp[0] + " " + lp[1]);
+    if (l_date.getDate() == now.getDate()) {
+        dailyBlockCount++;
+    }
+
     return {
         height: lp[9],
         rewards: lp[19] * 1,
