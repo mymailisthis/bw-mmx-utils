@@ -17,7 +17,8 @@ const chatID = process.env.TELEGRAM_CHAT_ID;
 const bot = new TelegramBot(token, { polling: false });
 
 let logToday = "",
-    logYesterday = "";
+    logYesterday = "",
+    tail;
 
 let lastDate = new Date(),
     dailyBlockCount = 0,
@@ -27,6 +28,10 @@ let lastDate = new Date(),
 initialize();
 
 async function initialize() {
+    if (tail) {
+        tail.unwatch();
+    }
+
     dailyBlockCount = 0;
     let today = new Date();
     let yesterday = new Date();
@@ -64,14 +69,7 @@ async function initialize() {
     tail = new Tail(mmx_log_folder + "/mmx_node_" + logToday + ".txt");
 
     tail.on("line", function (data) {
-        const now = new Date();
-        if (now.getDate() != lastDate.getDate()) {
-            tail.unwatch();
-            initialize();
-        } else {
-            parseData(data);
-        }
-        lastDate = now;
+        parseData(data);
     });
 }
 
@@ -100,6 +98,13 @@ async function parseData(d) {
     // Found proof
     if (l_parts[5] == "Found" && l_parts[6] == "proof") {
         log(d);
+    }
+
+    lastDate = new Date(l_parts[0] + " " + l_parts[1]);
+    const now = new Date();
+    if (now.getDate() != lastDate.getDate()) {
+        // tail.unwatch();
+        initialize();
     }
 }
 
