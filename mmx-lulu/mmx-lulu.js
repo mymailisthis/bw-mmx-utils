@@ -28,7 +28,9 @@ initialize();
 
 async function initialize() {
     if (newDayInterval) {
+        console.log("reinitializing...");
         clearInterval(newDayInterval);
+        newDayInterval = false;
     }
 
     if (tail) {
@@ -59,15 +61,16 @@ async function initialize() {
     // farmData["netspace"] = 113324309360000000;
     // farmData["farmspace"] = 240942856626176;
 
+    while (!fs.existsSync(mmx_log_folder + "/mmx_node_" + logToday + ".txt")) {
+        console.log("waiting...");
+        sleep(500);
+    }
+
     console.log(
         "Listening to " +
         mmx_log_folder +
         "/mmx_node_" + logToday + ".txt"
     );
-
-    while (!fs.existsSync(mmx_log_folder + "/mmx_node_" + logToday + ".txt")) {
-        sleep(500);
-    }
 
     tail = new Tail(mmx_log_folder + "/mmx_node_" + logToday + ".txt");
 
@@ -103,13 +106,9 @@ async function parseData(d) {
         log(d);
     }
 
-    checkTime(l_parts[0] + " " + l_parts[1]);
-
-    // const now = new Date();
-    // if (now.getDate() != lastDate.getDate()) {
-    //     // tail.unwatch();
-    //     initialize();
-    // }
+    if (!newDayInterval) {
+        checkTime(l_parts[0] + " " + l_parts[1]);
+    }
 }
 
 function checkTime(d) {
@@ -119,6 +118,7 @@ function checkTime(d) {
     nextDay = new Date(nextDay.setDate(nextDay.getDate() + 1));
 
     if (nextDay - current < 30000) {
+        console.log("awaiting for new log file to be created...");
         newDayInterval = setInterval(function () {
             if (new Date().getDate() == nextDay.getDate()) {
                 initialize();
