@@ -18,9 +18,8 @@ const bot = new TelegramBot(token, { polling: false });
 
 let logToday = "",
     logYesterday = "",
-    tail;
-
-let lastDate = new Date(),
+    tail,
+    newDayInterval,
     dailyBlockCount = 0,
     farmData = {},
     blocks = [];
@@ -28,6 +27,10 @@ let lastDate = new Date(),
 initialize();
 
 async function initialize() {
+    if (newDayInterval) {
+        clearInterval(newDayInterval);
+    }
+
     if (tail) {
         tail.unwatch();
     }
@@ -100,11 +103,27 @@ async function parseData(d) {
         log(d);
     }
 
-    lastDate = new Date(l_parts[0] + " " + l_parts[1]);
-    const now = new Date();
-    if (now.getDate() != lastDate.getDate()) {
-        // tail.unwatch();
-        initialize();
+    checkTime(l_parts[0] + " " + l_parts[1]);
+
+    // const now = new Date();
+    // if (now.getDate() != lastDate.getDate()) {
+    //     // tail.unwatch();
+    //     initialize();
+    // }
+}
+
+function checkTime(d) {
+    const current = new Date(d);
+    let nextDay = new Date(d);
+    nextDay = new Date(nextDay.setHours(0, 0, 0, 0));
+    nextDay = new Date(nextDay.setDate(nextDay.getDate() + 1));
+
+    if (nextDay - current < 30000) {
+        newDayInterval = setInterval(function () {
+            if (new Date().getDate() == nextDay.getDate()) {
+                initialize();
+            }
+        }, 1000);
     }
 }
 
