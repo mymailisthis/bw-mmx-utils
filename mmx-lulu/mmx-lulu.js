@@ -61,9 +61,13 @@ async function initialize() {
     // farmData["netspace"] = 113324309360000000;
     // farmData["farmspace"] = 240942856626176;
 
+    let i = 0;
     while (!fs.existsSync(mmx_log_folder + "/mmx_node_" + logToday + ".txt")) {
-        console.log("waiting...");
+        if (i == 0) {
+            console.log("waiting...");
+        }
         sleep(500);
+        i++;
     }
 
     console.log(
