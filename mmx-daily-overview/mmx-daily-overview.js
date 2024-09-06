@@ -255,7 +255,7 @@ function processLinesDayBefore(l) {
 
     // Created block
     if (lp[5] == "Created" && lp[6] == "block") {
-        if (lp[13] == "0,") {
+        if (lp[13] != "dummy,") {
             dayBeforeLastBlock = createBlock(lp);
         }
     }
@@ -314,7 +314,7 @@ function dealWithProof(lp) {
 }
 
 function dealWithBlock(lp) {
-    if (lp[13] == "0,") {
+    if (lp[13] != "dummy,") {
         const bl = createBlock(lp);
         blocks.push(bl);
         blocksCount++;
@@ -323,7 +323,7 @@ function dealWithBlock(lp) {
         }
         blockHeights += lp[9];
         rewards = rewards + lp[19] * 1;
-    } else if (lp[13] == "dummy,") {
+    } else {
         dummyBlocks++;
     }
 }

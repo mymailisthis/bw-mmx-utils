@@ -232,7 +232,7 @@ function processLines(l) {
 
     // Created block
     if (lp[5] == "Created" && lp[6] == "block") {
-        if (lp[13] == "0,") {
+        if (lp[13] != "dummy,") {
             blocks.push(createBlock(l));
         }
     }
