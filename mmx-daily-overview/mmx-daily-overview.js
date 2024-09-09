@@ -18,6 +18,7 @@ const bot = new TelegramBot(token, { polling: false });
 let output = "telegram";
 let showBlocksInfo = false;
 
+let today = new Date();
 let yesterday = new Date();
 let dayBefore = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
@@ -26,11 +27,16 @@ let logDate = "";
 
 // if a date is given we use it, if not, yesterday log is used
 if (args["date"]) {
-    let tmpDate = new Date(args["date"]);
-    tmpDate.setDate(tmpDate.getDate() - 1);
+    if (args["date"] == "live") {
+        logDate = today.toISOString().split('T')[0].replace(/-/g, "_");
+        logDateBefore = yesterday.toISOString().split('T')[0].replace(/-/g, "_");
+    } else {
+        let tmpDate = new Date(args["date"]);
+        tmpDate.setDate(tmpDate.getDate() - 1);
 
-    logDate = args["date"].replace(/-/g, "_");
-    logDateBefore = tmpDate.toISOString().split('T')[0].replace(/-/g, "_");
+        logDate = args["date"].replace(/-/g, "_");
+        logDateBefore = tmpDate.toISOString().split('T')[0].replace(/-/g, "_");
+    }
 } else {
     logDate = yesterday.toISOString().split('T')[0].replace(/-/g, "_");
     logDateBefore = dayBefore.toISOString().split('T')[0].replace(/-/g, "_");
