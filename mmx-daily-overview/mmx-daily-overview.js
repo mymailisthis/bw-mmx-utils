@@ -24,7 +24,7 @@ let dayBefore = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
 dayBefore.setDate(dayBefore.getDate() - 2);
 let logDate = "";
-let base = 1024;
+let base = 1000;
 
 // if a date is given we use it, if not, yesterday log is used
 if (args["date"]) {
@@ -94,10 +94,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        // farmData["netspace"] = await getNetSpace();
-        // farmData["farmspace"] = await getFarmSpace();
-        farmData["netspace"] = 113324309360000000;
-        farmData["farmspace"] = 340942856626176;
+        farmData["netspace"] = await getNetSpace();
+        farmData["farmspace"] = await getFarmSpace();
+        // farmData["netspace"] = 113324309360000000;
+        // farmData["farmspace"] = 340942856626176;
 
         parseLog(logDate);
 
