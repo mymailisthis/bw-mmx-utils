@@ -198,6 +198,12 @@ function createMessage() {
     message += "Skipped heights " + iconSH + ": " + skippedHeightsCount + " (approx " + millisecondsToStr(skippedHeightsCount * 10 * 1000) + ") " + skippedHeightsStr + "\n";
     message += "\n";
 
+    message += "Real data: \n";
+    message += " - ETW: " + convertHoursDecimal(etw_h) + "\n";
+    message += " - Farm size: " + humanFileSize(farmData.farmspace) + "\n";
+    message += " - Netspace: " + humanFileSize(farmData.netspace) + "\n";
+    message += "\n";
+
     message += "Based on daily gains your estimated farm data is: \n";
     message += " - ETW: " + convertHoursDecimal(getEstimatedETW()) + "\n";
     message += " - Farm size: " + Math.round(getEstimatedFarmSize() / 1000000000000 * 100) / 100 + " TB\n";
@@ -419,4 +425,9 @@ function convertHoursDecimal(h) {
         minutes = "0" + minutes;
     }
     return hours + "h" + minutes;
+}
+
+function humanFileSize(size) {
+    var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+    return +((size / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB', 'PB'][i];
 }
