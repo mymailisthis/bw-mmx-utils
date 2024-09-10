@@ -24,6 +24,7 @@ let dayBefore = new Date();
 yesterday.setDate(yesterday.getDate() - 1);
 dayBefore.setDate(dayBefore.getDate() - 2);
 let logDate = "";
+let base = 1024;
 
 // if a date is given we use it, if not, yesterday log is used
 if (args["date"]) {
@@ -40,6 +41,10 @@ if (args["date"]) {
 } else {
     logDate = yesterday.toISOString().split('T')[0].replace(/-/g, "_");
     logDateBefore = dayBefore.toISOString().split('T')[0].replace(/-/g, "_");
+}
+
+if (args["base"]) {
+    base = args["base"];
 }
 
 if (args["output"] && args["output"] == "console") {
@@ -89,10 +94,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        farmData["netspace"] = await getNetSpace();
-        farmData["farmspace"] = await getFarmSpace();
-        // farmData["netspace"] = 113324309360000000;
-        // farmData["farmspace"] = 240942856626176;
+        // farmData["netspace"] = await getNetSpace();
+        // farmData["farmspace"] = await getFarmSpace();
+        farmData["netspace"] = 113324309360000000;
+        farmData["farmspace"] = 340942856626176;
 
         parseLog(logDate);
 
@@ -200,13 +205,13 @@ function createMessage() {
 
     message += "Real data: \n";
     message += " - ETW: " + convertHoursDecimal(etw_h) + "\n";
-    message += " - Farm size: " + humanFileSize(farmData.farmspace) + "\n";
-    message += " - Netspace: " + humanFileSize(farmData.netspace) + "\n";
+    message += " - Farm size: " + humanFileSize(farmData.farmspace, base) + "\n";
+    message += " - Netspace: " + humanFileSize(farmData.netspace, base) + "\n";
     message += "\n";
 
     message += "Based on daily gains your estimated farm data is: \n";
     message += " - ETW: " + convertHoursDecimal(getEstimatedETW()) + "\n";
-    message += " - Farm size: " + Math.round(getEstimatedFarmSize() / 1000000000000 * 100) / 100 + " TB\n";
+    message += " - Farm size: " + humanFileSize(getEstimatedFarmSize(), base) + "\n";
     let iconPerf;
     if (getEstimatedFarmSize() / farmData.farmspace >= 1) {
         iconPerf = "👍";
@@ -427,7 +432,11 @@ function convertHoursDecimal(h) {
     return hours + "h" + minutes;
 }
 
-function humanFileSize(size) {
-    var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-    return +((size / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB', 'PB'][i];
+function humanFileSize(size, b) {
+    let units = ['bytes', 'kiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+    if (b == 1000) {
+        units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'];
+    }
+    var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(b));
+    return +((size / Math.pow(b, i)).toFixed(2)) * 1 + ' ' + units[i];
 }
