@@ -17,6 +17,8 @@ const bot = new TelegramBot(token, { polling: false });
 
 let output = "telegram";
 let showBlocksInfo = false;
+let utc = true;
+let tzOffset;
 
 let today = new Date();
 let yesterday = new Date();
@@ -25,6 +27,15 @@ yesterday.setDate(yesterday.getDate() - 1);
 dayBefore.setDate(dayBefore.getDate() - 2);
 let logDate = "";
 let base = 1000;
+
+if (args["utc"] && args["utc"] == "false") {
+    utc = false;
+    tzOffset = today.getTimezoneOffset();
+
+    today = new Date(today.getTime() + tzOffset * 60 * 1000);
+    yesterday = new Date(yesterday.getTime() + tzOffset * 60 * 1000);
+    dayBefore = new Date(dayBefore.getTime() + tzOffset * 60 * 1000);
+}
 
 // if a date is given we use it, if not, yesterday log is used
 if (args["date"]) {
