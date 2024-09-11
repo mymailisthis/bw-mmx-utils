@@ -24,8 +24,11 @@ cd bw-mmx-utils/mmx-daily-overview
 
 #### Optional arguments
 `--base=1024` default: 1000 (for TiB, PiB, etc)
+
 `--output=console` (to print in terminal instead of sending to telegram)
+
 `--date=YYYY-MM-DD` or `--date=live` default is yesterday date, to send report at midnight; live is used for real time data;
+
 `--blocks=1` default: 0 (to show detailed blocks and relative efforts)
 
 
