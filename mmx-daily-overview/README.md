@@ -35,7 +35,7 @@ or
 `watch './mmx-daily-overview.js  --date=live --output=console --blocks=1'`
 
 
-### Sending yesterday's report
+### Sending report of the day (yesterday's date)
 
 ```
 cd bw-mmx-utils/mmx-daily-overview
