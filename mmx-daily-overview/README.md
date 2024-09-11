@@ -34,7 +34,9 @@ cd bw-mmx-utils/mmx-daily-overview
 
 ### Using it live
 `./mmx-daily-overview.js  --date=live --output=console --blocks=1'`
+
 or
+
 `watch './mmx-daily-overview.js  --date=live --output=console --blocks=1'`
 
 
