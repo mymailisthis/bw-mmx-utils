@@ -73,6 +73,7 @@ let dayBeforeLastBlock = {},
     rewards = 0,
     dummyBlocks = 0,
     blockHeights = "",
+    blockHeightsEligible = [],
     heightsCount = 0,
     lastHeight = 0,
     skippedHeightsCount = 0,
@@ -360,6 +361,10 @@ function dealWithEligible(lp) {
     const ep = lp[5] * 1;
     const lookup = lp[16] * 1;
 
+    if (inEligibleHeights(lp[13])) {
+        return;
+    }
+
     eligiblePlotsTotal = eligiblePlotsTotal + ep;
 
     if (!eligiblePlotsMin || ep < eligiblePlotsMin) {
@@ -387,6 +392,15 @@ function dealWithEligible(lp) {
         eligibleOver15s++;
     }
     eligiblePlotsCount++;
+}
+
+function inEligibleHeights(h) {
+    if (!inArray(h, blockHeightsEligible)) {
+        blockHeightsEligible.push(h);
+        return false;
+    } else {
+        return true;
+    }
 }
 
 function getEstimatedETW() {
@@ -450,4 +464,12 @@ function humanFileSize(size, b) {
     }
     var i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(b));
     return +((size / Math.pow(b, i)).toFixed(2)) * 1 + ' ' + units[i];
+}
+
+function inArray(needle, haystack) {
+    var length = haystack.length;
+    for (var i = 0; i < length; i++) {
+        if (haystack[i] == needle) return true;
+    }
+    return false;
 }
