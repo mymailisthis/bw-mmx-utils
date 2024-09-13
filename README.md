@@ -1,11 +1,10 @@
 ## MMX Node Health Report
 
-This is a nodejs script based on *chiadog* that outputs a daily overview to a *telegram* bot.  
+This is a nodejs script based on *chiadog* that outputs a daily overview to a *telegram* bot or in terminal as a live report (see options). 
+    
   
-
-
   
-
+  
 ## MMX Lulu
 
 This is a nodejs script based on *chiadog* that outputs notifications about your farm via *telegram* bot while tailing your node's logs.  
