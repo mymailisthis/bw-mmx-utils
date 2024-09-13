@@ -1,4 +1,5 @@
-## MMX Node Health Report
+## MMX Node Health Report 
+#### (mmx-daily-overview)
 
 This is a nodejs script based on *chiadog* that outputs a daily overview to a *telegram* bot or in terminal as a live report (see options). 
     
