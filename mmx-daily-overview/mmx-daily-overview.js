@@ -80,17 +80,12 @@ let dayBeforeLastBlock = {},
     skippedHeightsStr = "",
     blocks = [],
     etw_h = 0,
-    eligiblePlotsTotal = 0,
     eligiblePlotsTotalTime = 0,
     eligiblePlotsCount = 0,
-    eligiblePlotsMax = "",
-    eligiblePlotsMin = "",
     eligibleOver1s = 0,
     eligibleOver5s = 0,
     eligibleOver15s = 0,
     plots = {},
-    plotsInitial = 0,
-    plotsFinal = 0,
     message;
 
 
@@ -405,11 +400,11 @@ function dealWithEligible(lp) {
 
     plots[host].eligibleTotal = plots[host].eligibleTotal + ep;
 
-    if (!plots[host].eligibleMin || ep < plots[host].eligibleMin) {
+    if (ep < plots[host].eligibleMin) {
         plots[host].eligibleMin = ep;
     }
 
-    if (!plots[host].eligibleMax || ep > plots[host].eligibleMax) {
+    if (ep > plots[host].eligibleMax) {
         plots[host].eligibleMax = ep;
     }
 
