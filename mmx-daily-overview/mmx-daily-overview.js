@@ -392,7 +392,7 @@ function dealWithEligible(lp) {
             initial: 0,
             final: 0,
             eligibleTotal: 0,
-            eligibleMin: 0,
+            eligibleMin: undefined,
             eligibleMax: 0,
             eligibleTotalTime: 0,
         }
@@ -400,7 +400,7 @@ function dealWithEligible(lp) {
 
     plots[host].eligibleTotal = plots[host].eligibleTotal + ep;
 
-    if (ep < plots[host].eligibleMin) {
+    if (plots[host].eligibleMin == undefined || ep < plots[host].eligibleMin) {
         plots[host].eligibleMin = ep;
     }
 
