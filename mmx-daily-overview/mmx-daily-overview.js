@@ -88,6 +88,7 @@ let dayBeforeLastBlock = {},
     eligibleOver1s = 0,
     eligibleOver5s = 0,
     eligibleOver15s = 0,
+    plots = {},
     plotsInitial = 0,
     plotsFinal = 0,
     message;
@@ -194,18 +195,34 @@ function createMessage() {
     message += " - over 5s: " + eligibleOver5s + " occasions (" + Math.round(eligibleOver5s / eligiblePlotsCount * 1000) / 10 + "%)\n";
     message += " - over 15s: " + eligibleOver15s + " occasions (" + Math.round(eligibleOver15s / eligiblePlotsCount * 1000) / 10 + "%)\n";
     message += "\n";
-    message += "Plots 🌱: " + plotsFinal;
-    if (plotsFinal !== plotsInitial) {
-        const diff = plotsFinal - plotsInitial;
-        let sign = "";
-        if (diff > 0) {
-            sign = "+";
+    message += "Plots 🌱: ";
+
+    let i = 0;
+    Object.entries(plots).forEach(([k, v]) => {
+        if (i > 0) {
+            message += " / ";
         }
-        message += " (" + sign + diff + ")\n";
-    } else {
-        message += "\n";
-    }
-    message += "Eligible plots 🏆: " + Math.round(eligiblePlotsTotal / eligiblePlotsCount * 100) / 100 + " average (Min: " + eligiblePlotsMin + " / Max: " + eligiblePlotsMax + ")\n";
+        if (Object.entries(plots).length > 1)
+            message += "[" + k + "] ";
+
+        message += v.final + isThereDiff(v);
+        i++;
+    });
+    message += "\n";
+
+    message += "Eligible plots 🏆: ";
+    let f = 0;
+    Object.entries(plots).forEach(([k, v]) => {
+        if (Object.entries(plots).length > 1) {
+            message += "\n";
+            message += "  [" + k + "] ";
+        }
+
+        message += Math.round(v.eligibleTotal / eligiblePlotsCount * 100) / 100 + " average (Min: " + v.eligibleMin + " / Max: " + v.eligibleMax + ")";
+        f++;
+    });
+    message += "\n";
+
     let iconSH;
     if (skippedHeightsCount > 0) {
         iconSH = "🙈";
@@ -231,6 +248,19 @@ function createMessage() {
         iconPerf = "👎";
     }
     message += " - Performance: " + Math.round(getEstimatedFarmSize() / farmData.farmspace * 1000) / 10 + "% " + iconPerf;
+}
+
+function isThereDiff(h) {
+    if (h.final !== h.initial) {
+        const diff = h.final - h.initial;
+        let sign = "";
+        if (diff > 0) {
+            sign = "+";
+        }
+        return " (" + sign + diff + ")";
+    } else {
+        return false;
+    }
 }
 
 function generateBlocksDetails() {
@@ -360,28 +390,36 @@ function dealWithBlock(lp) {
 function dealWithEligible(lp) {
     const ep = lp[5] * 1;
     const lookup = lp[16] * 1;
+    const host = lp[4].replace(/[\[\]']+/g, '');
 
-    if (inEligibleHeights(lp[13])) {
-        return;
+    if (!plots[host]) {
+        plots[host] = {
+            initial: 0,
+            final: 0,
+            eligibleTotal: 0,
+            eligibleMin: 0,
+            eligibleMax: 0,
+            eligibleTotalTime: 0,
+        }
     }
 
-    eligiblePlotsTotal = eligiblePlotsTotal + ep;
+    plots[host].eligibleTotal = plots[host].eligibleTotal + ep;
 
-    if (!eligiblePlotsMin || ep < eligiblePlotsMin) {
-        eligiblePlotsMin = ep;
+    if (!plots[host].eligibleMin || ep < plots[host].eligibleMin) {
+        plots[host].eligibleMin = ep;
     }
 
-    if (!eligiblePlotsMax || ep > eligiblePlotsMax) {
-        eligiblePlotsMax = ep;
+    if (!plots[host].eligibleMax || ep > plots[host].eligibleMax) {
+        plots[host].eligibleMax = ep;
     }
 
-    if (plotsInitial == 0) {
-        plotsInitial = lp[7] * 1;
+    if (plots[host].initial == 0) {
+        plots[host].initial = lp[7] * 1;
     }
 
-    plotsFinal = lp[7] * 1;
+    plots[host].final = lp[7] * 1;
 
-    eligiblePlotsTotalTime = eligiblePlotsTotalTime + lookup;
+    plots[host].eligibleTotalTime = plots[host].eligibleTotalTime + lookup;
     if (lookup > 1 && lookup <= 5) {
         eligibleOver1s++;
     }
@@ -391,7 +429,10 @@ function dealWithEligible(lp) {
     if (lookup > 15) {
         eligibleOver15s++;
     }
-    eligiblePlotsCount++;
+
+    if (!inEligibleHeights(lp[13])) {
+        eligiblePlotsCount++;
+    }
 }
 
 function inEligibleHeights(h) {
