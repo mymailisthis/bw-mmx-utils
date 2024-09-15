@@ -219,13 +219,15 @@ function createMessage() {
     message += "\n";
 
     let iconSH;
+    let timeSH = "";
     if (skippedHeightsCount > 0) {
         iconSH = "🙈";
+        timeSH = " (approx " + millisecondsToStr(skippedHeightsCount * 10 * 1000) + ") " + "[" + skippedHeightsStr + "]";
     } else {
         iconSH = "👏";
     }
-    message += "Skipped heights " + iconSH + ": " + skippedHeightsCount + " (approx " + millisecondsToStr(skippedHeightsCount * 10 * 1000) + ") " + skippedHeightsStr + "\n";
-    message += "\n";
+    message += "Skipped heights " + iconSH + ": " + skippedHeightsCount + timeSH;
+    message += "\n\n";
 
     message += "Real data: \n";
     message += " - ETW: " + convertHoursDecimal(etw_h) + "\n";
@@ -233,7 +235,7 @@ function createMessage() {
     message += " - Netspace: " + humanFileSize(farmData.netspace, base) + "\n";
     message += "\n";
 
-    message += "Based on daily gains your estimated farm data is: \n";
+    message += "Based on today gains your estimated farm data is: \n";
     message += " - ETW: " + convertHoursDecimal(getEstimatedETW()) + "\n";
     message += " - Farm size: " + humanFileSize(getEstimatedFarmSize(), base) + "\n";
     let iconPerf;
@@ -356,7 +358,7 @@ function checkSkippedHeights(h) {
             if (skippedHeightsStr !== "") {
                 skippedHeightsStr += ", ";
             }
-            skippedHeightsStr += "[" + lastHeight + "..." + h + "]";
+            skippedHeightsStr += lastHeight + "..." + h;
         }
     }
 
@@ -440,7 +442,23 @@ function inEligibleHeights(h) {
 }
 
 function getEstimatedETW() {
-    return 24 / blocksCount;
+    if (args["date"] == "live") {
+        return getElapsedTime() / blocksCount;
+    } else {
+        return 24 / blocksCount;
+    }
+}
+
+function getElapsedTime() {
+    const now = new Date(),
+        startDay = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+            0, 0, 0),
+        diff = now.getTime() - startDay.getTime();
+
+    return diff / 1000 / 3600;
 }
 
 function getEstimatedFarmSize() {
