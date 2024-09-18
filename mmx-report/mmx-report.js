@@ -15,6 +15,7 @@ const bot = new TelegramBot(token, { polling: false });
 
 
 const today = new Date();
+const today_date = today.toISOString().split('T')[0];
 // const current_week = 
 const current_month = today.getMonth();
 // const_current_year =
@@ -84,7 +85,7 @@ function parseLog() {
 function processLines(l) {
     const lp = l.split(" ");
 
-    if (l == "") {
+    if (l == "" || lp[0] == today_date) {
         return;
     }
 
@@ -165,6 +166,11 @@ function getEtw(f, n) {
 function makeReport() {
     if (type == "month") {
         makeMonthReport().then(r => {
+            if (what) {
+                console.log("Month Report - " + months_ext2[what - 1]);
+            } else {
+                console.log("Month Report - " + months_ext2[current_month]);
+            }
             console.log(r);
         });
     }
@@ -176,8 +182,10 @@ async function makeMonthReport() {
         total_rewards: 0,
         total_fees: 0,
         total_amount: 0,
+        blocks_per_day: 0,
         tmp_total_performance: 0,
         tmp_total: 0,
+        tmp_total_total: 0,
         average_performance: 0,
     };
 
@@ -193,6 +201,8 @@ async function makeMonthReport() {
                 month_data.tmp_total_performance += d.performance;
                 month_data.tmp_total++;
             }
+
+            month_data.tmp_total_total++;
         }
     });
 
@@ -217,6 +227,8 @@ async function adjustReport(d) {
     d.average_performance = Math.round(d.tmp_total_performance / d.tmp_total * 10000) / 10000;
     delete d.tmp_total_performance;
     delete d.tmp_total;
+    d.blocks_per_day = Math.round(d.total_blocks / d.tmp_total_total * 10) / 10;
+    delete d.tmp_total_total;
 
     return d;
 }
