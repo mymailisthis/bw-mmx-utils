@@ -1,13 +1,17 @@
 #! /usr/bin/env node
 Tail = require("tail").Tail;
 const dotenv = require("dotenv");
-dotenv.config();
+dotenv.config({ path: '../.env' });
 const fs = require('fs');
 const exec = require('child_process').exec;
 
-const log_folder = process.env.LOG_FOLDER;
+if (!process.env.MMX_LOG_FOLDER || !process.env.MMX_FOLDER) {
+    console.log("Make sure you have .env file configured in the root of this repository.");
+    console.log("Due to an update all projects of this repo, uses a single .env in its root. You may move one of the oldest .env inside mmx-lulu or mmx-daily-overview to the root and confirm it has all the variables in .env-sample file. Then you can run again this file.");
+    return;
+}
+
 const mmx_log_folder = process.env.MMX_LOG_FOLDER;
-const home_folder = process.env.HOME_FOLDER;
 const mmxFolder = process.env.MMX_FOLDER;
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -151,7 +155,7 @@ function createBlock(l) {
 function log(msg) {
     console.log(msg);
 
-    let log = fs.createWriteStream(log_folder + "/processed_mmx_log.log", {
+    let log = fs.createWriteStream("./logs/processed_mmx_log.log", {
         flags: "a",
     });
     log.write(msg + "\n");

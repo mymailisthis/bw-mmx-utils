@@ -1,0 +1,11 @@
+{
+    "name": "mmx-report",
+    "version": "1.0.0",
+    "description": "script that uses mmx-lulu log to issue weekly and monthly reports",
+    "dependencies": {
+        "dotenv": "^15.0.0",
+        "minimist": "^1.2.8",
+        "node-telegram-bot-api": "^0.66.0",
+        "tail": "^2.2.4"
+    }
+}

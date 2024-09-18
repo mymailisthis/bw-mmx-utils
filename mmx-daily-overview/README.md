@@ -14,7 +14,7 @@ NOTES:
 
 2. `npm install`
 
-3. Create and fill your `.env` file based on `.env-sample`
+3. Create and fill your `.env` file based on `.env-sample` (in the root of this repository).
 
 ### How to run
 ```
@@ -23,8 +23,8 @@ cd bw-mmx-utils/mmx-daily-overview
 ```
 
 #### Optional arguments
-`--base=1024` default: 1000 (for TiB, PiB, etc)  
-`--output=console` (to print in terminal instead of sending to telegram)  
+`--base=1024 | 1000` default: 1000 (for TiB, PiB, etc)  
+`--output=telegram | console` default: console (to send via telegram or show in console)  
 `--date=YYYY-MM-DD` or `--date=live` default is yesterday date, to send report at midnight; live is used for real time data;  
 `--blocks=1` default: 0 (to show detailed blocks and relative efforts)
 

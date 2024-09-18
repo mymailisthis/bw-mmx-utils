@@ -16,7 +16,7 @@ NOTES:
   
 1. Clone this repository  
 2. `npm install`  
-3. Create and fill your `.env` file based on `.env-sample`  
+3. Create and fill your `.env` file based on `.env-sample` (in the root of this repository). 
     
 ### How to run
   

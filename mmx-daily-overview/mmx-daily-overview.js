@@ -2,11 +2,18 @@
 
 const args = require("minimist")(process.argv.slice(2));
 const dotenv = require("dotenv");
-dotenv.config();
+dotenv.config({ path: '../.env' });
 
 const fs = require('fs');
 const exec = require('child_process').exec;
-const logFolder = process.env.LOG_FOLDER;
+
+if (!process.env.MMX_LOG_FOLDER || !process.env.MMX_FOLDER) {
+    console.log("Make sure you have .env file configured in the root of this repository.");
+    console.log("Due to an update all projects of this repo, uses a single .env in its root. You may move one of the oldest .env inside mmx-lulu or mmx-daily-overview to the root and confirm it has all the variables in .env-sample file. Then you can run again this file.");
+    return;
+}
+
+const mmx_log_folder = process.env.MMX_LOG_FOLDER;
 const mmxFolder = process.env.MMX_FOLDER;
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -15,7 +22,7 @@ const token = process.env.TELEGRAM_BOT_TOKEN;
 const chatID = process.env.TELEGRAM_CHAT_ID;
 const bot = new TelegramBot(token, { polling: false });
 
-let output = "telegram";
+let output = "console";
 let showBlocksInfo = false;
 let utc = true;
 let tzOffset;
@@ -58,8 +65,8 @@ if (args["base"]) {
     base = args["base"];
 }
 
-if (args["output"] && args["output"] == "console") {
-    output = "console";
+if (args["output"] && args["output"] == "telegram") {
+    output = "telegram";
 }
 
 if (args["blocks"] && args["blocks"] == "1") {
@@ -90,8 +97,8 @@ let dayBeforeLastBlock = {},
 
 
 
-let fileExists = fs.existsSync(logFolder + '/mmx_node_' + logDate + '.txt');
-let fileBeforeExists = fs.existsSync(logFolder + '/mmx_node_' + logDateBefore + '.txt');
+let fileExists = fs.existsSync(mmx_log_folder + '/mmx_node_' + logDate + '.txt');
+let fileBeforeExists = fs.existsSync(mmx_log_folder + '/mmx_node_' + logDateBefore + '.txt');
 
 initialize();
 
@@ -127,7 +134,7 @@ async function getDayBeforeData() {
 
 function parseLog(lf, before = false) {
 
-    const allFileContents = fs.readFileSync(logFolder + '/mmx_node_' + lf + '.txt', 'utf-8');
+    const allFileContents = fs.readFileSync(mmx_log_folder + '/mmx_node_' + lf + '.txt', 'utf-8');
 
     allFileContents.split(/\r?\n/).forEach(line => {
         if (before) {
