@@ -183,6 +183,7 @@ async function makeMonthReport() {
         total_fees: 0,
         total_amount: 0,
         blocks_per_day: 0,
+        mmx_per_day: 0,
         tmp_total_performance: 0,
         tmp_total: 0,
         tmp_total_total: 0,
@@ -228,6 +229,7 @@ async function adjustReport(d) {
     delete d.tmp_total_performance;
     delete d.tmp_total;
     d.blocks_per_day = Math.round(d.total_blocks / d.tmp_total_total * 10) / 10;
+    d.mmx_per_day = Math.round(d.total_amount / d.tmp_total_total * 100) / 100;
     delete d.tmp_total_total;
 
     return d;
