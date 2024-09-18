@@ -49,7 +49,7 @@ if (args["what"]) {
 }
 
 if (args["exclude-dates"]) {
-    excludedDates = args["exclude-dates"].split("|");
+    excludedDates = args["exclude-dates"].split(",");
 }
 
 let fileExists = fs.existsSync(logFile);
