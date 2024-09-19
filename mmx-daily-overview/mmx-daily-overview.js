@@ -109,10 +109,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        farmData["netspace"] = await getNetSpace();
-        farmData["farmspace"] = await getFarmSpace();
-        // farmData["netspace"] = 113324309360000000;
-        // farmData["farmspace"] = 340942856626176;
+        // farmData["netspace"] = await getNetSpace();
+        // farmData["farmspace"] = await getFarmSpace();
+        farmData["netspace"] = 113324309360000000;
+        farmData["farmspace"] = 340942856626176;
 
         parseLog(logDate);
 
@@ -192,10 +192,10 @@ function createMessage() {
     message += " - " + dummyBlocks + " Dummy blocks 💩\n";
     message += "\n";
     message += "Search 🔎: \n";
-    message += " - average: " + Math.round(eligiblePlotsTotalTime / eligiblePlotsCount * 1000) / 1000 + "s over " + eligiblePlotsCount + " searches\n";
-    message += " - over 1s: " + eligibleOver1s + " occasions (" + Math.round(eligibleOver1s / eligiblePlotsCount * 1000) / 10 + "%)\n";
-    message += " - over 5s: " + eligibleOver5s + " occasions (" + Math.round(eligibleOver5s / eligiblePlotsCount * 1000) / 10 + "%)\n";
-    message += " - over 15s: " + eligibleOver15s + " occasions (" + Math.round(eligibleOver15s / eligiblePlotsCount * 1000) / 10 + "%)\n";
+    message += " - average: " + getEligibleAvgLookups();
+    message += " - over 1s: " + getEligibleOver(1) + "\n";
+    message += " - over 5s: " + getEligibleOver(5) + "\n";
+    message += " - over 15s: " + getEligibleOver(15) + "\n";
     message += "\n";
     message += "Plots 🌱: ";
 
@@ -265,6 +265,34 @@ function isThereDiff(h) {
     } else {
         return false;
     }
+}
+
+function getEligibleAvgLookups() {
+    let str = "";
+    if (Object.entries(plots).length > 0) {
+        str += "\n";
+        Object.entries(plots).forEach(([k, v]) => {
+            str += "    [" + k + "] " + Math.round(v.eligibleTotalTime / v.eligiblePlotsCount * 1000) / 1000 + "s over " + v.eligiblePlotsCount + " searches\n";
+        });
+    }
+
+    return str;
+}
+
+function getEligibleOver(t) {
+    let str = "";
+
+    if (Object.entries(plots).length > 0) {
+        Object.entries(plots).forEach(([k, v]) => {
+            if (v["eligibleOver" + t + "s"] > 0) {
+                str += "\n";
+                str += "    [" + k + "] " + v["eligibleOver" + t + "s"] + " occasions (" + Math.round(v["eligibleOver" + t + "s"] / v.eligiblePlotsCount * 1000) / 10 + "%)";
+            }
+        });
+    }
+
+    (str == "") && (str = 0);
+    return str;
 }
 
 function generateBlocksDetails() {
@@ -393,7 +421,7 @@ function dealWithBlock(lp) {
 
 function dealWithEligible(lp) {
     const ep = lp[5] * 1;
-    const lookup = lp[16] * 1;
+    const lookup = lp[19] * 1;
     const host = lp[4].replace(/[\[\]']+/g, '');
 
     if (!plots[host]) {
@@ -404,10 +432,14 @@ function dealWithEligible(lp) {
             eligibleMin: undefined,
             eligibleMax: 0,
             eligibleTotalTime: 0,
+            eligibleOver1s: 0,
+            eligibleOver5s: 0,
+            eligibleOver15s: 0,
+            eligiblePlotsCount: 0,
         }
     }
 
-    eligiblePlotsTotalTime = eligiblePlotsTotalTime + ep;
+    // eligiblePlotsTotalTime = eligiblePlotsTotalTime + ep;
     plots[host].eligibleTotal = plots[host].eligibleTotal + ep;
 
     if (plots[host].eligibleMin == undefined || ep < plots[host].eligibleMin) {
@@ -426,14 +458,16 @@ function dealWithEligible(lp) {
 
     plots[host].eligibleTotalTime = plots[host].eligibleTotalTime + lookup;
     if (lookup > 1 && lookup <= 5) {
-        eligibleOver1s++;
+        plots[host].eligibleOver1s++;
     }
     if (lookup > 5 && lookup <= 15) {
-        eligibleOver5s++;
+        plots[host].eligibleOver5s++;
     }
     if (lookup > 15) {
-        eligibleOver15s++;
+        plots[host].eligibleOver15s++;
     }
+
+    plots[host].eligiblePlotsCount++;
 
     if (!inEligibleHeights(lp[13])) {
         eligiblePlotsCount++;
