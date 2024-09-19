@@ -407,6 +407,7 @@ function dealWithEligible(lp) {
         }
     }
 
+    eligiblePlotsTotal = eligiblePlotsTotal + ep;
     plots[host].eligibleTotal = plots[host].eligibleTotal + ep;
 
     if (plots[host].eligibleMin == undefined || ep < plots[host].eligibleMin) {
