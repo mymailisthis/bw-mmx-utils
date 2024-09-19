@@ -87,11 +87,7 @@ let dayBeforeLastBlock = {},
     skippedHeightsStr = "",
     blocks = [],
     etw_h = 0,
-    eligiblePlotsTotalTime = 0,
     eligiblePlotsCount = 0,
-    eligibleOver1s = 0,
-    eligibleOver5s = 0,
-    eligibleOver15s = 0,
     plots = {},
     message;
 
@@ -109,10 +105,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        // farmData["netspace"] = await getNetSpace();
-        // farmData["farmspace"] = await getFarmSpace();
-        farmData["netspace"] = 113324309360000000;
-        farmData["farmspace"] = 340942856626176;
+        farmData["netspace"] = await getNetSpace();
+        farmData["farmspace"] = await getFarmSpace();
+        // farmData["netspace"] = 113324309360000000;
+        // farmData["farmspace"] = 340942856626176;
 
         parseLog(logDate);
 
@@ -439,7 +435,6 @@ function dealWithEligible(lp) {
         }
     }
 
-    // eligiblePlotsTotalTime = eligiblePlotsTotalTime + ep;
     plots[host].eligibleTotal = plots[host].eligibleTotal + ep;
 
     if (plots[host].eligibleMin == undefined || ep < plots[host].eligibleMin) {
