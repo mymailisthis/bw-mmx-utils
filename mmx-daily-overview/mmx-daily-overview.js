@@ -78,6 +78,7 @@ let dayBeforeLastBlock = {},
     proofs = 0,
     blocksCount = 0,
     rewards = 0,
+    fees = 0,
     dummyBlocks = 0,
     blockHeights = "",
     blockHeightsEligible = [],
@@ -105,10 +106,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        farmData["netspace"] = await getNetSpace();
-        farmData["farmspace"] = await getFarmSpace();
-        // farmData["netspace"] = 113324309360000000;
-        // farmData["farmspace"] = 340942856626176;
+        // farmData["netspace"] = await getNetSpace();
+        // farmData["farmspace"] = await getFarmSpace();
+        farmData["netspace"] = 113324309360000000;
+        farmData["farmspace"] = 340942856626176;
 
         parseLog(logDate);
 
@@ -178,7 +179,7 @@ function createMessage() {
     message = "🚜 *MMX Node Health Report* - " + logDate.replace(/_/g, "-") + "\n";
 
     message += "\n";
-    message += "*MMX earned* 💰: " + Math.round(rewards * 100) / 100 + " MMX\n";
+    message += "*MMX earned* 💰: " + Math.round((rewards + fees) * 100) / 100 + " MMX\n";
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocksCount + " *Created blocks* 🍀\n";
     if (blocks.length > 0 && showBlocksInfo) {
@@ -410,6 +411,7 @@ function dealWithBlock(lp) {
         }
         blockHeights += lp[9];
         rewards = rewards + lp[19] * 1;
+        fees = fees + lp[23] * 1;
     } else {
         dummyBlocks++;
     }
