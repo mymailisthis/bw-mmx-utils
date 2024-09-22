@@ -106,10 +106,10 @@ async function initialize() {
             const dayBeforeData = await getDayBeforeData();
         }
 
-        // farmData["netspace"] = await getNetSpace();
-        // farmData["farmspace"] = await getFarmSpace();
-        farmData["netspace"] = 113324309360000000;
-        farmData["farmspace"] = 340942856626176;
+        farmData["netspace"] = await getNetSpace();
+        farmData["farmspace"] = await getFarmSpace();
+        // farmData["netspace"] = 113324309360000000;
+        // farmData["farmspace"] = 340942856626176;
 
         parseLog(logDate);
 
