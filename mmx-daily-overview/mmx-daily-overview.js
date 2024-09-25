@@ -186,7 +186,7 @@ function createMessage() {
         message += "   - Blocks details:\n";
         message += "     " + generateBlocksDetails() + "\n";
         if (args["date"] == "live") {
-            message += "   - Current effort ⌛: " + getCurrentEffort() + "]\n";
+            message += "   - Current effort ⌛: " + getCurrentEffort() + "\n";
         }
     }
     message += " - " + dummyBlocks + " Dummy blocks 💩\n";
