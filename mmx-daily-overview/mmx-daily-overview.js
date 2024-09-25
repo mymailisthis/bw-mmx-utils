@@ -183,8 +183,11 @@ function createMessage() {
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocksCount + " *Created blocks* 🍀\n";
     if (blocks.length > 0 && showBlocksInfo) {
-        message += "   - Blocks details:\n"
+        message += "   - Blocks details:\n";
         message += "     " + generateBlocksDetails() + "\n";
+        if (args["date"] == "live") {
+            message += "   - Current effort ⌛: " + getCurrentEffort() + "]\n";
+        }
     }
     message += " - " + dummyBlocks + " Dummy blocks 💩\n";
     message += "\n";
@@ -319,6 +322,16 @@ function generateBlocksDetails() {
 
         return str;
     }
+}
+
+function getCurrentEffort() {
+    const now = new Date();
+    const last = blocks[blocks.length - 1];
+    let lastBlockTime = new Date(last.dateTime).getTime();
+    let diff = Math.abs(lastBlockTime - now.getTime()) / 36e5;
+    let effort = Math.round(diff / etw_h * 100);
+
+    return effort + "%";
 }
 
 function sendMessage() {
