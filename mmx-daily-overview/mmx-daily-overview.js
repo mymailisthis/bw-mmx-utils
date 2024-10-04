@@ -182,9 +182,8 @@ function createMessage() {
     message += "*MMX earned* 💰: " + Math.round((rewards + fees) * 100) / 100 + " MMX\n";
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocksCount + " *Created blocks* 🍀\n";
-    if (blocks.length > 0 && showBlocksInfo) {
-        message += "   - Blocks details:\n";
-        message += "     " + generateBlocksDetails() + "\n";
+    if (blocks.length > 0) {
+        message += generateBlocksDetails() + "\n";
         if (args["date"] == "live") {
             message += "   - Current effort ⌛: " + getCurrentEffort() + "\n";
         }
@@ -309,15 +308,18 @@ function generateBlocksDetails() {
             allEfforts.push(effort);
             lastTime = currentBlockTime;
 
-            if (str !== "") {
-                str += ", ";
-            } else {
-                str += "(";
+            if (showBlocksInfo) {
+                if (str !== "") {
+                    str += ", ";
+                } else {
+                    str += "   - Blocks details:\n";
+                    str += "     (";
+                }
+                str += b.height + " / " + effort + "%";
             }
-            str += b.height + " / " + effort + "%";
         });
 
-        str += ")\n";
+        (showBlocksInfo) && (str += ")\n");
         str += "   - Average effort: " + Math.round(allEfforts.reduce((partialSum, a) => partialSum + a, 0) / allEfforts.length) + "%";
 
         return str;
