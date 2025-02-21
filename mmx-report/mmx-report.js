@@ -97,7 +97,8 @@ function processLines(l) {
             all_data[currentSet].total_blocks++;
             all_data[currentSet].total_rewards += lp[19] * 1;
             all_data[currentSet].total_fees += lp[23] * 1;
-            all_data[currentSet].total_amount += lp[19] * 1 + lp[23] * 1;
+            // all_data[currentSet].total_amount += lp[19] * 1 + lp[23] * 1;
+            all_data[currentSet].total_amount += lp[19] * 1; // actually reward is the composed amount to the farmer (reward + its part of the fee)
             // all_data[currentSet].total_efforts += lp[30].replace("%", "") / 100;
 
         }

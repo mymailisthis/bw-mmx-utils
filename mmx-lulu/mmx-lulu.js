@@ -13,6 +13,7 @@ if (!process.env.MMX_LOG_FOLDER || !process.env.MMX_FOLDER) {
 
 const mmx_log_folder = process.env.MMX_LOG_FOLDER;
 const mmxFolder = process.env.MMX_FOLDER;
+const thisFolder = process.env.THIS_FOLDER;
 
 const TelegramBot = require('node-telegram-bot-api');
 const { parse } = require("path");
@@ -165,35 +166,54 @@ function sendTelegramMessage(msg) {
     bot.sendMessage(chatID, msg, { parse_mode: 'Markdown' });
 }
 
-async function getNetSpace() {
+async function runInVenv(commands) {
+    const venvPath = 'activate.sh';
+
+    const command = `cd ${mmxFolder}; source ${venvPath} && ${commands.join(' && ')}`;
 
     return new Promise(function (resolve, reject) {
-        exec(mmxFolder + "/build/mmx node get netspace", function (err, stdout, stderr) {
-            if (err) {
-                console.error(err);
-                reject(err);
-            } else {
-                const result = stdout.split("\n");
-                resolve(result[0]);
+        exec(command, { shell: '/bin/bash' }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Execution error: ${error}`);
+                return;
+            }
+
+            const result = stdout.split("\n");
+            resolve(result);
+
+            if (stderr) {
+                console.error('Errors:', stderr);
             }
         });
     });
 }
 
+async function getNetSpace() {
+
+    let netspace = await runInVenv(["mmx node get netspace"]);
+
+    let result;
+    if (netspace[0].startsWith('NETWORK')) {
+        result = netspace[1];
+    } else {
+        result = netspace[2];
+    }
+
+    return result;
+}
+
 async function getFarmSpace() {
 
-    return new Promise(function (resolve, reject) {
-        exec(mmxFolder + "/build/mmx farm info", function (err, stdout, stderr) {
-            if (err) {
-                console.error(err);
-                reject(err);
-            } else {
-                const result = stdout.split("\n");
-                let total = result[3].split(" ");
-                resolve(total[6] * 1000000000000);
-            }
-        });
-    });
+    let info = await runInVenv(["mmx farm info"]);
+
+    let total;
+    if (info[0].startsWith('NETWORK')) {
+        total = info[4].split(" ");
+    } else {
+        total = info[5].split(" ");
+    }
+
+    return total[2] * 1000000000000;
 }
 
 async function computeEffort(l) {

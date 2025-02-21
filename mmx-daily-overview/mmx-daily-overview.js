@@ -15,6 +15,7 @@ if (!process.env.MMX_LOG_FOLDER || !process.env.MMX_FOLDER) {
 
 const mmx_log_folder = process.env.MMX_LOG_FOLDER;
 const mmxFolder = process.env.MMX_FOLDER;
+const thisFolder = process.env.THIS_FOLDER;
 
 const TelegramBot = require('node-telegram-bot-api');
 const { parse } = require("path");
@@ -108,8 +109,8 @@ async function initialize() {
 
         farmData["netspace"] = await getNetSpace();
         farmData["farmspace"] = await getFarmSpace();
-        // farmData["netspace"] = 113324309360000000;
-        // farmData["farmspace"] = 340942856626176;
+        // farmData["netspace"] = 2324309360000000;
+        // farmData["farmspace"] = 406942856626176;
 
         parseLog(logDate);
 
@@ -142,35 +143,54 @@ function parseLog(lf, before = false) {
     });
 }
 
-async function getNetSpace() {
+async function runInVenv(commands) {
+    const venvPath = 'activate.sh';
+
+    const command = `cd ${mmxFolder}; source ${venvPath} && ${commands.join(' && ')}`;
 
     return new Promise(function (resolve, reject) {
-        exec(mmxFolder + "/build/mmx node get netspace", function (err, stdout, stderr) {
-            if (err) {
-                console.error(err);
-                reject(err);
-            } else {
-                const result = stdout.split("\n");
-                resolve(result[0]);
+        exec(command, { shell: '/bin/bash' }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Execution error: ${error}`);
+                return;
+            }
+
+            const result = stdout.split("\n");
+            resolve(result);
+
+            if (stderr) {
+                console.error('Errors:', stderr);
             }
         });
     });
 }
 
+async function getNetSpace() {
+
+    let netspace = await runInVenv(["mmx node get netspace"]);
+
+    let result;
+    if (netspace[0].startsWith('NETWORK')) {
+        result = netspace[1];
+    } else {
+        result = netspace[2];
+    }
+
+    return result;
+}
+
 async function getFarmSpace() {
 
-    return new Promise(function (resolve, reject) {
-        exec(mmxFolder + "/build/mmx farm info", function (err, stdout, stderr) {
-            if (err) {
-                console.error(err);
-                reject(err);
-            } else {
-                const result = stdout.split("\n");
-                let total = result[3].split(" ");
-                resolve(total[6] * 1000000000000);
-            }
-        });
-    });
+    let info = await runInVenv(["mmx farm info"]);
+
+    let total;
+    if (info[0].startsWith('NETWORK')) {
+        total = info[4].split(" ");
+    } else {
+        total = info[5].split(" ");
+    }
+
+    return total[2] * 1000000000000;
 }
 
 function createMessage() {
@@ -179,18 +199,18 @@ function createMessage() {
     message = "🚜 *MMX Node Health Report* - " + logDate.replace(/_/g, "-") + "\n";
 
     message += "\n";
-    message += "*MMX earned* 💰: " + Math.round((rewards + fees) * 100) / 100 + " MMX\n";
+    // message += "*MMX earned* 💰: " + Math.round((rewards + fees) * 100) / 100 + " MMX\n";
+    message += "*MMX earned* 💰: " + Math.round((rewards) * 100) / 100 + " MMX\n"; // actually reward is the composed amount to the farmer (reward + its part of the fee)
     message += "Proofs 🧾: " + proofs + "\n";
     message += " - " + blocksCount + " *Created blocks* 🍀\n";
-    if (blocks.length > 0 && showBlocksInfo) {
-        message += "   - Blocks details:\n";
-        message += "     " + generateBlocksDetails() + "\n";
+    if (blocks.length > 0) {
+        message += generateBlocksDetails() + "\n";
         if (args["date"] == "live") {
             message += "   - Current effort ⌛: " + getCurrentEffort() + "\n";
         }
     }
-    message += " - " + dummyBlocks + " Dummy blocks 💩\n";
-    message += "\n";
+    // message += " - " + dummyBlocks + " Dummy blocks 💩\n";
+    // message += "\n";
     message += "Search 🔎: \n";
     message += " - average: " + getEligibleAvgLookups();
     message += " - over 1s: " + getEligibleOver(1) + "\n";
@@ -309,15 +329,21 @@ function generateBlocksDetails() {
             allEfforts.push(effort);
             lastTime = currentBlockTime;
 
-            if (str !== "") {
-                str += ", ";
-            } else {
-                str += "(";
+            if (showBlocksInfo) {
+                if (str !== "") {
+                    str += ", ";
+                } else {
+                    str += "   - Blocks details:\n";
+                    str += "     (";
+                }
+                str += b.height + " / " + effort + "%";
             }
-            str += b.height + " / " + effort + "%";
         });
 
-        str += ")\n";
+        (showBlocksInfo) && (str += ")\n");
+        if (isNaN(allEfforts[0]))
+            allEfforts.shift();
+
         str += "   - Average effort: " + Math.round(allEfforts.reduce((partialSum, a) => partialSum + a, 0) / allEfforts.length) + "%";
 
         return str;
